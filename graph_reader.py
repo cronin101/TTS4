@@ -1,7 +1,5 @@
 from counter_backport import Counter
 
-MAILING_LIST = 'pete.davis@enron.com'
-
 class GraphReader:
     def __init__(self, filename):
 
@@ -10,8 +8,7 @@ class GraphReader:
 
         print("Building connections.")
         split = map(lambda l: l.strip().split(), lines)
-        self.edges = Counter((out, inc) for (hsh, out, inc) in split
-            if (not MAILING_LIST in (out, inc)) and out != inc)
+        self.edges = Counter((out, inc) for (hsh, out, inc) in split if out != inc)
 
 if __name__ == "__main__":
     GraphReader('./graph.txt')

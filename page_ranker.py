@@ -3,7 +3,8 @@ from graph_reader import GraphReader
 import itertools
 
 class PageRanker:
-    def __init__(self, counted_edges):
+    def __init__(self, counted_edges, lbda=0.8):
+        self.ldba = lbda
 
         senders = set(out for out, inc in counted_edges.keys())
         receivers = set (inc for out, inc in counted_edges.keys())
@@ -20,7 +21,7 @@ class PageRanker:
         self.page_rank = dict((email, initial_rank) for email in self.unique_emails)
 
     def iterate(self):
-        lbda = 0.8
+        lbda = self.ldba
 
         leaked_pr = lbda * sum(self.page_rank[email] for email in self.sinks)
         random_walk_pr = 1.0 - lbda
