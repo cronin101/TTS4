@@ -39,6 +39,3 @@ class PageRanker:
 
     def highest(self, n):
         return sorted(self.page_rank.iteritems(), key=operator.itemgetter(1), reverse=True)[:n]
-
-
-
