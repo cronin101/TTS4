@@ -18,8 +18,10 @@ class PageRanker:
         initial_rank = 1.0 / len(self.unique_emails)
         self.page_rank = { email : initial_rank for email in self.unique_emails }
 
+        self.iteration = 0
+
     def iterate(self, n):
-        for it in xrange(n):
+        while self.iteration < n:
             lm = self.lbda
 
             leaked_pr = lm * sum(self.page_rank[email] for email in self.sinks)
@@ -35,6 +37,8 @@ class PageRanker:
                     next_page_rank[recipient] += received_pr
 
             self.page_rank = next_page_rank
+
+            self.iteration += 1
         return self
 
     def highest(self, n):

@@ -1,4 +1,4 @@
-0.38418729 ryan.slinger@enron.com
+0.38418728 ryan.slinger@enron.com
 0.38417654 albert.meyers@enron.com
 0.38384904 mark.guzman@enron.com
 0.38376442 geir.solberg@enron.com

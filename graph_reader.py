@@ -5,5 +5,5 @@ class GraphReader:
 
         with open(filename) as graph_file: lines = graph_file.readlines()
 
-        split = (l.strip().split() for l in lines)
-        self.edges = Counter((out, inc) for (hsh, out, inc) in split if out != inc)
+        self.raw = [l.strip().split() for l in lines]
+        self.edges = Counter((out, inc) for (hsh, out, inc) in self.raw if out != inc)
