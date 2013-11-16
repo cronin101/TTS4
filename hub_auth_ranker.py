@@ -14,18 +14,18 @@ class HubAuthRanker:
             self.inlinks[inc]  = self.inlinks.get(inc, []) + ([out] * weight)
 
         initial_score = 1.0/math.sqrt(len(self.unique_emails))
-        self.hub = dict((email, initial_score) for email in self.unique_emails)
-        self.auth = dict((email, initial_score) for email in self.unique_emails)
+        self.hub = { email : initial_score for email in self.unique_emails }
+        self.auth = { email : initial_score for email in self.unique_emails }
 
     def iterate(self, n):
         for it in xrange(n):
-            self.hub = dict((email, sum(self.auth[target] for target in self.outlinks[email])) for email in self.senders)
+            self.hub = { email : sum(self.auth[target] for target in self.outlinks[email]) for email in self.senders }
             hub_norm_factor = 1.0 / math.sqrt(sum(value ** 2 for value in self.hub.values()))
-            self.hub = {e: s * hub_norm_factor for e, s in self.hub.iteritems()}
+            self.hub = { e : s * hub_norm_factor for e, s in self.hub.iteritems() }
 
-            self.auth = dict((email, sum(self.hub[sender] for sender in self.inlinks[email])) for email in self.receivers)
+            self.auth = { email : sum(self.hub[sender] for sender in self.inlinks[email]) for email in self.receivers }
             auth_norm_factor = 1.0 / math.sqrt(sum(value ** 2 for value in self.auth.values()))
-            self.auth = {e: s * auth_norm_factor for e, s in self.auth.iteritems()}
+            self.auth = { e : s * auth_norm_factor for e, s in self.auth.iteritems() }
         return self
 
     def highest_hubs(self, n):

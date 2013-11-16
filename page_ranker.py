@@ -16,7 +16,7 @@ class PageRanker:
 
         self.page_rank = {}
         initial_rank = 1.0 / len(self.unique_emails)
-        self.page_rank = dict((email, initial_rank) for email in self.unique_emails)
+        self.page_rank = { email : initial_rank for email in self.unique_emails }
 
     def iterate(self, n):
         for it in xrange(n):
@@ -27,7 +27,7 @@ class PageRanker:
 
             initial_pr = (leaked_pr + random_walk_pr) / len(self.unique_emails)
 
-            next_page_rank = dict((email, initial_pr) for email in self.unique_emails)
+            next_page_rank = { email : initial_pr for email in self.unique_emails }
 
             for sender, recipients in self.outlinks.iteritems():
                 received_pr = lm * (self.page_rank[sender] / len(recipients))
