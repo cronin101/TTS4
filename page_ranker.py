@@ -5,7 +5,7 @@ class PageRanker:
         self.lbda = lbda
 
         senders = set(out for out, inc in counted_edges.keys())
-        receivers = set (inc for out, inc in counted_edges.keys())
+        receivers = set(inc for out, inc in counted_edges.keys())
         self.unique_emails = senders | receivers
 
         self.outlinks = {}
