@@ -7,6 +7,3 @@ class GraphReader:
 
         split = (l.strip().split() for l in lines)
         self.edges = Counter((out, inc) for (hsh, out, inc) in split if out != inc)
-
-if __name__ == "__main__":
-    GraphReader('./graph.txt')
