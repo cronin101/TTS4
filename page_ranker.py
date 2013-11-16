@@ -18,22 +18,24 @@ class PageRanker:
         initial_rank = 1.0 / len(self.unique_emails)
         self.page_rank = dict((email, initial_rank) for email in self.unique_emails)
 
-    def iterate(self):
-        lm = self.lbda
+    def iterate(self, n):
+        for it in xrange(n):
+            lm = self.lbda
 
-        leaked_pr = lm * sum(self.page_rank[email] for email in self.sinks)
-        random_walk_pr = 1.0 - lm
+            leaked_pr = lm * sum(self.page_rank[email] for email in self.sinks)
+            random_walk_pr = 1.0 - lm
 
-        initial_pr = (leaked_pr + random_walk_pr) / len(self.unique_emails)
+            initial_pr = (leaked_pr + random_walk_pr) / len(self.unique_emails)
 
-        next_page_rank = dict((email, initial_pr) for email in self.unique_emails)
+            next_page_rank = dict((email, initial_pr) for email in self.unique_emails)
 
-        for sender, recipients in self.outlinks.iteritems():
-            received_pr = lm * (self.page_rank[sender] / len(recipients))
-            for recipient in recipients:
-                next_page_rank[recipient] += received_pr
+            for sender, recipients in self.outlinks.iteritems():
+                received_pr = lm * (self.page_rank[sender] / len(recipients))
+                for recipient in recipients:
+                    next_page_rank[recipient] += received_pr
 
-        self.page_rank = next_page_rank
+            self.page_rank = next_page_rank
+        return self
 
     def highest(self, n):
         return sorted(self.page_rank.iteritems(), key=operator.itemgetter(1), reverse=True)[:n]
