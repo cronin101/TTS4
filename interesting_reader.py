@@ -101,5 +101,5 @@ class InterestingReader:
                     links.append(Edge(lookup(sender), lookup(receiver), color=color, penwidth=((0.7 + (prop / 4.0))/ 2.0), weight=prop))
         for edge in links: graph.add_edge(edge)
 
-        graph.write_png('./enron.png')
-        graph.write('enron.dot', format='raw', prog='dot')
+        graph.write_png('./graph.png')
+        graph.write('graph.dot', format='raw', prog='dot')
