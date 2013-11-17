@@ -33,7 +33,6 @@ class InterestingReader:
         for line in role_lines:
             email, identity = line.strip().split('\t')[:2]
             identity_parts = [part for part in re.split(r'\s{2,}', identity) if not part in ['N/A', 'Employee']]
-
             identity = '\n'.join(identity_parts)
             if identity != 'xxx':
                 self.email_lookup[email + '@enron.com'] = identity
@@ -103,3 +102,4 @@ class InterestingReader:
         for edge in links: graph.add_edge(edge)
 
         graph.write_png('./enron.png')
+        graph.write('enron.dot', format='raw', prog='dot')
