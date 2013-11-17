@@ -26,7 +26,7 @@ print "pr " + ("%.8f" % page_ranker.page_rank['jeff.dasovich@enron.com'])
 print "hub " + ("%.8f" % hits_ranker.hub['jeff.dasovich@enron.com'])
 print "auth " + ("%.8f" % hits_ranker.auth['jeff.dasovich@enron.com'])
 
-interesting_people = set(e for (e, s) in page_ranker.highest(25))
+interesting_people = set(e for (e, s) in page_ranker.highest(40))
 
 # Remove the mailing list bot
 try:

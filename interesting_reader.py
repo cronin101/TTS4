@@ -1,5 +1,8 @@
 from pydot import (Dot, Edge, Node)
+from email_reader import EmailReader
+import math
 
+import string
 import re
 import lxml.etree as etree
 
@@ -21,6 +24,7 @@ class InterestingReader:
 
         self.emails = emails
         print "There are this many interesting emails: " +str(len(list(interesting_emails)))
+        self.e_reader = EmailReader(interesting_emails).process()
 
         self.email_lookup = {}
         with open('./roles.txt') as roles: role_lines = roles.readlines()
@@ -45,14 +49,14 @@ class InterestingReader:
             def to_hex(score):
                 return hex(int(score))[2:].zfill(2)
 
-            auth_score = ((self.auth.get(email, 0.0) / highest_auth) * 250.0) + 5
-            hub_score = ((self.hub.get(email, 0.0) / highest_hub) * 250.0) + 5
+            auth_score = ((self.auth.get(email, 0.0) / highest_auth) * 255.0)
+            hub_score = ((self.hub.get(email, 0.0) / highest_hub) * 255.0)
 
-            return '#' + to_hex(255.0 - auth_score) + to_hex(100.00) + to_hex(255.0 - hub_score)
+            return '#' + to_hex(255.0 - auth_score) + '00' + to_hex(255.0 - hub_score)
 
         graph = Dot(graph_type='digraph', simplify=True, suppress_disconnected=True)
 
-        people = (Node(lookup(e), shape='record', style="filled", fillcolor=colour(e)) for e in self.emails)
+        people = (Node(lookup(e), shape='box', color=colour(e)) for e in self.emails)
         for node in people:
             graph.add_node(node)
 
@@ -61,15 +65,34 @@ class InterestingReader:
             for receiver in self.outgoing[sender].keys():
                 num_emails.append(len(self.outgoing[sender][receiver]))
 
-        mean_emails = float(sum(num_emails)) / float(len(num_emails))
+        def mean(s): return sum(s) * 1.0 / len(s)
+        def std_dev(mean_v, s): return math.sqrt(mean(map(lambda x: (x - mean_v)**2, s)))
+
+        mean_emails = mean(num_emails)
+        email_std_dev = std_dev(mean_emails, num_emails)
+
+        p_ranks = []
+        for sender in self.outgoing.keys():
+            for receiver in self.outgoing[sender].keys():
+                p_ranks.append(self.e_reader.phoenix_rank(self.outgoing[sender][receiver] + self.outgoing.get(receiver, {}).get(sender, [])))
+
+        mean_p_rank = mean(p_ranks)
+        p_rank_std_dev = std_dev(mean_p_rank, p_ranks)
 
         links = []
         for sender in self.outgoing.keys():
             for receiver in self.outgoing[sender].keys():
                 count = len(self.outgoing[sender][receiver])
                 prop = float(count) / mean_emails
-                if prop > 0.33:
-                    links.append(Edge(lookup(sender), lookup(receiver), penwidth=((0.7 + (prop / 4.0))/ 2.0), weight=prop))
+                if count >= mean_emails + (email_std_dev / 4):
+                    #content = ' '.join(self.e_reader.highest_weighted(set(self.outgoing[sender][receiver])))
+                    phoenix_rank =  self.e_reader.phoenix_rank(self.outgoing[sender][receiver] + self.outgoing.get(receiver, {}).get(sender, []))
+                    if phoenix_rank >= (p_rank_std_dev / 3) +  mean_p_rank:
+                        color = "#ff0000"
+                    else:
+                        color = "#000000"
+
+                    links.append(Edge(lookup(sender), lookup(receiver), color=color, penwidth=((0.7 + (prop / 4.0))/ 2.0), weight=prop))
         for edge in links: graph.add_edge(edge)
 
         graph.write_png('./enron.png')
