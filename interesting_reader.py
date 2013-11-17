@@ -8,8 +8,8 @@ import lxml.etree as etree
 
 class InterestingReader:
     def __init__(self, lines, emails, hub, auth, pr):
-        self.hub = hub
-        self.auth = auth
+        self.hub = { e : hub.get(e, 0.0) for e in emails }
+        self.auth = { e : auth.get(e, 0.0) for e in emails }
         self.pr = { e : pr[e] for e in emails }
 
         valid = ((h, o, i) for (h, o, i) in lines
@@ -45,6 +45,13 @@ class InterestingReader:
 
         highest_hub = max(self.hub.get(e, 0.0) for e in self.emails)
         highest_auth = max(self.auth.get(e, 0.0) for e in self.emails)
+        highest_hubauth = max(highest_hub, highest_auth)
+
+        def mean(s): return sum(s) * 1.0 / len(s)
+        def std_dev(mean_v, s): return math.sqrt(mean(map(lambda x: (x - mean_v)**2, s)))
+
+        mean_hub = mean(self.hub.values())
+        mean_auth = mean(self.auth.values())
 
         def colour(email):
             def to_hex(score):
@@ -56,9 +63,6 @@ class InterestingReader:
             return '#' + to_hex(255.0 - auth_score) + '00' + to_hex(255.0 - hub_score)
 
         graph = Dot(graph_type='digraph', simplify=True, suppress_disconnected=True)
-
-        def mean(s): return sum(s) * 1.0 / len(s)
-        def std_dev(mean_v, s): return math.sqrt(mean(map(lambda x: (x - mean_v)**2, s)))
 
         mean_pr = mean(self.pr.values())
 
