@@ -1,10 +1,7 @@
 import string
 import operator
-import enchant
 
 from counter_backport import Counter
-
-
 
 class EmailReader:
     def __init__(self, refs):
@@ -39,8 +36,6 @@ class EmailReader:
         for (k, v) in self.kept.iteritems():
             self.df.update(v)
 
-        #print sorted(self.df.iteritems(), reverse=True, key=operator.itemgetter(1))
-
         return self
 
     def phoenix_rank(self, hshes):
@@ -48,13 +43,7 @@ class EmailReader:
         for counts in (v for (k, v) in self.kept.iteritems() if k in hshes):
             totals.update(counts)
 
-        d = enchant.Dict()
-
-        def is_word(w):
-            return d.check(w)
-
-        scores = { k : (v ** 2) / float(self.df[k]) for (k, v) in totals.iteritems() if is_word(k) }
-        #scores = { k : v  for (k, v) in totals.iteritems() }
+        scores = { k : (v ** 2) / float(self.df[k]) for (k, v) in totals.iteritems() }
         return sum(scores.values()) / float(len(hshes))
 
 if __name__ == "__main__":
