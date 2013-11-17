@@ -7,9 +7,10 @@ import re
 import lxml.etree as etree
 
 class InterestingReader:
-    def __init__(self, lines, emails, hub, auth):
+    def __init__(self, lines, emails, hub, auth, pr):
         self.hub = hub
         self.auth = auth
+        self.pr = { e : pr[e] for e in emails }
 
         valid = ((h, o, i) for (h, o, i) in lines
                 if ((o != i) and o in emails and i in emails))
@@ -40,7 +41,7 @@ class InterestingReader:
     def make_graph(self):
 
         def lookup(email):
-            return self.email_lookup.get(email, email)
+            return self.email_lookup.get(email, email) + '\n H=' + ("%.0e" % self.hub.get(email, 0.0)) + ', A=' + ("%.0e" % self.auth.get(email, 0.0))
 
         highest_hub = max(self.hub.get(e, 0.0) for e in self.emails)
         highest_auth = max(self.auth.get(e, 0.0) for e in self.emails)
@@ -56,7 +57,12 @@ class InterestingReader:
 
         graph = Dot(graph_type='digraph', simplify=True, suppress_disconnected=True)
 
-        people = (Node(lookup(e), shape='box', color=colour(e)) for e in self.emails)
+        def mean(s): return sum(s) * 1.0 / len(s)
+        def std_dev(mean_v, s): return math.sqrt(mean(map(lambda x: (x - mean_v)**2, s)))
+
+        mean_pr = mean(self.pr.values())
+
+        people = (Node(lookup(e), shape='record', color=colour(e), fontsize=5.0 + (5.0 * (self.pr[e] / mean_pr))) for e in self.emails)
         for node in people:
             graph.add_node(node)
 
@@ -64,9 +70,6 @@ class InterestingReader:
         for sender in self.outgoing.keys():
             for receiver in self.outgoing[sender].keys():
                 num_emails.append(len(self.outgoing[sender][receiver]))
-
-        def mean(s): return sum(s) * 1.0 / len(s)
-        def std_dev(mean_v, s): return math.sqrt(mean(map(lambda x: (x - mean_v)**2, s)))
 
         mean_emails = mean(num_emails)
         email_std_dev = std_dev(mean_emails, num_emails)
@@ -87,7 +90,7 @@ class InterestingReader:
                 if count >= mean_emails + (email_std_dev / 4):
                     #content = ' '.join(self.e_reader.highest_weighted(set(self.outgoing[sender][receiver])))
                     phoenix_rank =  self.e_reader.phoenix_rank(self.outgoing[sender][receiver] + self.outgoing.get(receiver, {}).get(sender, []))
-                    if phoenix_rank >= (p_rank_std_dev / 3) +  mean_p_rank:
+                    if phoenix_rank >= (p_rank_std_dev / 3) + mean_p_rank:
                         color = "#ff0000"
                     else:
                         color = "#000000"

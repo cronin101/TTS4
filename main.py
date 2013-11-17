@@ -33,4 +33,4 @@ try:
     interesting_people.remove('pete.davis@enron.com')
 except: KeyError
 
-InterestingReader(input_graph.raw, interesting_people, hits_ranker.hub, hits_ranker.auth).make_graph()
+InterestingReader(input_graph.raw, interesting_people, hits_ranker.hub, hits_ranker.auth, page_ranker.page_rank).make_graph()
