@@ -1,4 +1,4 @@
-from counter_backport import Counter
+from collections import Counter
 
 class GraphReader:
     def __init__(self, filename):

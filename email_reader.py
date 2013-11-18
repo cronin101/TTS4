@@ -1,7 +1,7 @@
 import string
 import operator
 
-from counter_backport import Counter
+from collections import Counter
 
 class EmailReader:
     def __init__(self, refs):
@@ -30,7 +30,7 @@ class EmailReader:
             string.ascii_lowercase + (' ' * len(string.punctuation))
         )
 
-        self.kept = { k : Counter([word for word in string.translate(v,tab).split() if len(word) > 4 and word in self.lwords]) for (k, v) in self.kept.iteritems() }
+        self.kept = { k : Counter([word for word in string.translate(v,tab).split() if word in self.lwords]) for (k, v) in self.kept.iteritems() }
 
         self.df = Counter([])
         for (k, v) in self.kept.iteritems():

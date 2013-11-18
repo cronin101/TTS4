@@ -10,7 +10,7 @@ class InterestingReader:
     def __init__(self, lines, emails, hub, auth, pr):
         self.hub = { e : hub.get(e, 0.0) for e in emails }
         self.auth = { e : auth.get(e, 0.0) for e in emails }
-        self.pr = { e : pr[e] for e in emails }
+        self.pr = { e : pr.get(e, 0.0) for e in emails }
 
         valid = ((h, o, i) for (h, o, i) in lines
                 if ((o != i) and o in emails and i in emails))
